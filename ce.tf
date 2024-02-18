@@ -47,19 +47,19 @@ resource "google_compute_instance_template" "ce_template" {
   
 }
 
-resource "google_compute_instance_from_template" "vm" {
+resource "google_compute_instance_from_template" "ce1" {
   name           = "ce-1"
   zone           = "${var.region}-b"
   source_instance_template = google_compute_instance_template.ce_template.id  
 }
 
-resource "google_compute_instance_from_template" "vm" {
+resource "google_compute_instance_from_template" "ce2" {
   name           = "ce-2"
   zone           = "${var.region}-c"
   source_instance_template = google_compute_instance_template.ce_template.id  
 }
 
-resource "google_compute_instance_from_template" "vm" {
+resource "google_compute_instance_from_template" "ce3" {
   name           = "ce-3"
   zone           = "${var.region}-d"
   source_instance_template = google_compute_instance_template.ce_template.id  
