@@ -1,0 +1,8 @@
+
+pub.key
+.terraform.lock.hcl
+service-account-key.json
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+vm.tf.bck
