@@ -51,7 +51,7 @@ resource "google_compute_instance_template" "ce_template" {
   
 }
 
-resource "google_compute_region_instance_group_manager" "instance_group_manager" {
+resource "google_compute_region_instance_group_manager" "ce_group_manager" {
   name                      = local.ce_cluster_name
   region                    = var.region
   description               = "Instance group manager for CE"
@@ -75,24 +75,37 @@ resource "google_compute_region_instance_group_manager" "instance_group_manager"
 }
 
 
-/*
 
-resource "google_compute_instance_from_template" "ce1" {
-  name           = "ce-1"
-  zone           = "${var.region}-b"
-  source_instance_template = google_compute_instance_template.ce_template.id  
+# Health Checks
+# Health Check
+resource "google_compute_health_check" "lb_health_check" {
+  name               = "lb-health-check"
+  check_interval_sec = 5
+  timeout_sec        = 5
+  tcp_health_check {
+    port = 80 
+  }
 }
 
-
-resource "google_compute_instance_from_template" "ce2" {
-  name           = "ce-2"
-  zone           = "${var.region}-c"
-  source_instance_template = google_compute_instance_template.ce_template.id  
+# Backend Service
+resource "google_compute_region_backend_service" "lb_backend_service" {
+  name          = "lb-backend-service"
+  region        = var.region
+  protocol      = "TCP" 
+  
+  health_checks = [google_compute_health_check.lb_health_check.id]
+  backend {
+    group = google_compute_region_instance_group_manager.ce_group_manager.instance_group
+  }
 }
 
-resource "google_compute_instance_from_template" "ce3" {
-  name           = "ce-3"
-  zone           = "${var.region}-d"
-  source_instance_template = google_compute_instance_template.ce_template.id  
+# Network Load Balancer Forwarding Rule
+resource "google_compute_forwarding_rule" "lb_forwarding_rule" {
+  name       = "lb-forwarding-rule"
+  ip_protocol = "TCP"  
+  ports = ["80","443"]
+  load_balancing_scheme = "INTERNAL"   
+  backend_service = google_compute_region_backend_service.lb_backend_service.self_link
+  subnetwork = var.subnet_out
+  network = var.vpc_out
 }
-*/
